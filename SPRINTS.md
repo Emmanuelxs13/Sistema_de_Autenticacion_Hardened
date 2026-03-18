@@ -42,25 +42,25 @@ Criterio de aceptación:
 - ~~Ruta protegida responde solo si hay sesión válida.~~
 - ~~Token no se expone a JavaScript del cliente.~~
 
-## Sprint 3 — MFA/2FA (TOTP + QR)
+## ~~Sprint 3 — MFA/2FA (TOTP + QR)~~ ✅
 
 Objetivo:
-Agregar segundo factor para bloquear accesos con contraseña comprometida.
+~~Agregar segundo factor para bloquear accesos con contraseña comprometida.~~
 
 Entregables:
 
-- Generación de secreto TOTP por usuario.
-- QR para enrolar Google Authenticator.
-- Flujo de login en dos pasos:
-  1. credenciales,
-  2. código MFA.
-- Verificación de código TOTP.
-- Bloqueo de emisión de JWT final si MFA falla.
+- ~~Generación de secreto TOTP por usuario.~~
+- ~~QR para enrolar Google Authenticator.~~
+- ~~Flujo de login en dos pasos:~~
+  1. ~~credenciales,~~
+  2. ~~código MFA.~~
+- ~~Verificación de código TOTP.~~
+- ~~Bloqueo de emisión de JWT final si MFA falla.~~
 
 Criterio de aceptación:
 
-- Sin código MFA válido no se inicia sesión final.
-- Con MFA válido se completa login y se mantiene sesión segura.
+- ~~Sin código MFA válido no se inicia sesión final.~~
+- ~~Con MFA válido se completa login y se mantiene sesión segura.~~
 
 ## Sprint 4 — Frontend plano + narrativa comercial
 
@@ -110,5 +110,6 @@ Criterio de aceptación:
 
 - Sprint completado: **Sprint 1** ✅
 - Sprint completado: **Sprint 2** ✅
-- Sprint activo: **esperando autorización para Sprint 3**.
-- Siguiente acción: iniciar Sprint 3 (MFA/2FA con TOTP + QR) cuando tú lo indiques.
+- Sprint completado: **Sprint 3** ✅
+- Sprint activo: **esperando autorización para Sprint 4**.
+- Siguiente acción: iniciar Sprint 4 (frontend plano + narrativa comercial) cuando tú lo indiques.

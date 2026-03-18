@@ -16,7 +16,24 @@ function verifyAccessToken(token) {
   });
 }
 
+function signTempToken(payload) {
+  return jwt.sign(payload, env.jwtSecret, {
+    expiresIn: env.tempTokenExpiresIn,
+    issuer: env.jwtIssuer,
+    audience: env.tempJwtAudience,
+  });
+}
+
+function verifyTempToken(token) {
+  return jwt.verify(token, env.jwtSecret, {
+    issuer: env.jwtIssuer,
+    audience: env.tempJwtAudience,
+  });
+}
+
 module.exports = {
   signAccessToken,
   verifyAccessToken,
+  signTempToken,
+  verifyTempToken,
 };
