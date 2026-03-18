@@ -2,25 +2,25 @@
 
 Este documento define qué se hará en cada sprint. La ejecución será secuencial y solo se avanzará con tu confirmación.
 
-## Sprint 1 — Fundaciones seguras (Argon2 + base del proyecto)
+## ~~Sprint 1 — Fundaciones seguras (Argon2 + base del proyecto)~~ ✅
 
 Objetivo:
-Construir la base técnica del backend y asegurar el registro de usuarios con hashing robusto.
+~~Construir la base técnica del backend y asegurar el registro de usuarios con hashing robusto.~~
 
 Entregables:
 
-- Estructura del proyecto Node.js + Express.
-- Configuración de entorno (`.env.example`).
-- Registro de usuario con validaciones mínimas.
-- Hash de contraseña con Argon2id.
-- Persistencia inicial (archivo o DB simple para demo).
-- Manejo centralizado de errores.
+- ~~Estructura del proyecto Node.js + Express.~~
+- ~~Configuración de entorno (`.env.example`).~~
+- ~~Registro de usuario con validaciones mínimas.~~
+- ~~Hash de contraseña con Argon2id.~~
+- ~~Persistencia inicial (archivo o DB simple para demo).~~
+- ~~Manejo centralizado de errores.~~
 
 Criterio de aceptación:
 
-- Un usuario puede registrarse.
-- La contraseña nunca se guarda en texto plano.
-- El hash almacenado es Argon2.
+- ~~Un usuario puede registrarse.~~
+- ~~La contraseña nunca se guarda en texto plano.~~
+- ~~El hash almacenado es Argon2.~~
 
 ## Sprint 2 — Sesiones endurecidas (JWT + cookies seguras)
 
@@ -108,5 +108,6 @@ Criterio de aceptación:
 
 ## Estado actual
 
-- Sprint activo: **pendiente de inicio**.
-- Siguiente acción: esperar tu instrucción para comenzar Sprint 1.
+- Sprint completado: **Sprint 1** ✅
+- Sprint activo: **esperando autorización para Sprint 2**.
+- Siguiente acción: iniciar Sprint 2 cuando tú lo indiques.
