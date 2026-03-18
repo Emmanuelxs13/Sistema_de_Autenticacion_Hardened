@@ -1,0 +1,27 @@
+{
+  "name": "sistema-autenticacion-hardened",
+  "version": "1.0.0",
+  "description": "Sprint 1 - Fundaciones seguras con Argon2 para registro de usuarios.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [
+    "auth",
+    "security",
+    "argon2",
+    "express",
+    "sprint-1"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "argon2": "^0.44.0",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
