@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hardened Auth · MFA + JWT</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__content">
+        <p class="eyebrow">Proyecto 1 · Sistema de Autenticación Hardened</p>
+        <h1>Protección de identidad <span>lista para producción</span></h1>
+        <p class="subtitle">
+          Login reforzado con Argon2, JWT en cookie blindada y MFA/2FA con
+          Google Authenticator.
+        </p>
+        <ul class="chips">
+          <li>Argon2id</li>
+          <li>JWT HttpOnly/Secure</li>
+          <li>TOTP + QR</li>
+          <li>Plug & Play para Node.js</li>
+        </ul>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <h2>1) Registro</h2>
+        <p>Crea un usuario con contraseña hasheada usando Argon2id.</p>
+        <form id="register-form">
+          <label>Email <input type="email" name="email" required /></label>
+          <label
+            >Password <input type="password" name="password" required
+          /></label>
+          <button type="submit">Registrar</button>
+        </form>
+        <div id="register-result" class="result"></div>
+      </section>
+
+      <section class="card">
+        <h2>2) Setup MFA</h2>
+        <p>Genera QR y secreto para enrolar Authenticator.</p>
+        <form id="mfa-setup-form">
+          <label>Email <input type="email" name="email" required /></label>
+          <button type="submit">Generar QR MFA</button>
+        </form>
+        <div id="mfa-setup-result" class="result"></div>
+      </section>
+
+      <section class="card">
+        <h2>3) Activar MFA</h2>
+        <p>Valida un código TOTP de 6 dígitos para activar segundo factor.</p>
+        <form id="mfa-verify-form">
+          <label>Email <input type="email" name="email" required /></label>
+          <label
+            >Código TOTP <input type="text" name="token" maxlength="6" required
+          /></label>
+          <button type="submit">Activar MFA</button>
+        </form>
+        <div id="mfa-verify-result" class="result"></div>
+      </section>
+
+      <section class="card">
+        <h2>4) Login paso 1</h2>
+        <p>Valida credenciales y obtiene token temporal.</p>
+        <form id="login-step1-form">
+          <label>Email <input type="email" name="email" required /></label>
+          <label
+            >Password <input type="password" name="password" required
+          /></label>
+          <button type="submit">Iniciar Login</button>
+        </form>
+        <div id="login-step1-result" class="result"></div>
+      </section>
+
+      <section class="card">
+        <h2>5) Login paso 2 (MFA)</h2>
+        <p>Con token temporal + TOTP se emite JWT en cookie segura.</p>
+        <form id="login-step2-form">
+          <label
+            >Temp Token <textarea name="tempToken" rows="3" required></textarea>
+          </label>
+          <label
+            >Código TOTP
+            <input type="text" name="mfaCode" maxlength="6" required
+          /></label>
+          <button type="submit">Completar Login</button>
+        </form>
+        <div id="login-step2-result" class="result"></div>
+      </section>
+
+      <section class="card actions">
+        <h2>Sesión protegida</h2>
+        <p>Consulta perfil con cookie HttpOnly y luego cierra sesión.</p>
+        <div class="btn-row">
+          <button id="me-btn" type="button">Ver /me</button>
+          <button id="logout-btn" type="button">Cerrar sesión</button>
+        </div>
+        <div id="session-result" class="result"></div>
+      </section>
+
+      <section class="card pitch">
+        <h2>Valor de negocio</h2>
+        <ul>
+          <li>Reduce account takeover y fraude por credenciales filtradas.</li>
+          <li>Mejora cumplimiento y postura de auditoría de seguridad.</li>
+          <li>Acelera delivery con un módulo de identidad reutilizable.</li>
+          <li>Evita meses de desarrollo interno de autenticación robusta.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>Hardened Auth · Sprint 4 · Demo comercial y técnica</p>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

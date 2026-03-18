@@ -1,103 +1,148 @@
 # Proyecto 1: Sistema de Autenticación "Hardened" (MFA + JWT)
 
-Este proyecto transforma un login básico en una fortaleza. El objetivo es evitar que un atacante robe cuentas, incluso si logra obtener la contraseña del usuario.
+Este proyecto transforma un login básico en una fortaleza. Su objetivo es evitar que un atacante robe cuentas incluso si logra obtener la contraseña del usuario.
 
-## Resumen ejecutivo
+## Propuesta de valor
 
-- Producto: módulo de autenticación segura "Plug & Play" para Node.js.
-- Problema que resuelve: robo de cuentas, secuestro de sesión y abuso de credenciales filtradas.
-- Propuesta de valor: integración rápida con controles de seguridad de nivel empresarial.
+- Producto: módulo "Plug & Play" de identidad blindada para Node.js + Express.
+- Problema que resuelve: account takeover, secuestro de sesión y abuso de credenciales filtradas.
+- Beneficio de negocio: despliegue rápido de autenticación robusta sin construirla desde cero.
 
-## Pilares de ciberseguridad del proyecto
+## Pilares de ciberseguridad
 
-## 1) Hashing con Argon2 (la base de la base)
+### 1) Argon2id para contraseñas
 
 Qué hace:
-Cuando un usuario se registra, la contraseña no se guarda en texto plano (por ejemplo, `12345`). Se transforma con Argon2 y se almacena únicamente el hash.
+
+- El backend nunca guarda la contraseña en texto plano.
+- En registro, la contraseña se transforma con Argon2id y solo se persiste el hash.
 
 Por qué es ciberseguridad:
 
-- Argon2 está diseñado para ser lento y costoso en memoria (memory-hard).
-- Esto dificulta ataques masivos con GPU/ASIC tras una filtración de base de datos.
-- Es un estándar moderno recomendado para contraseñas.
+- Argon2id es memory-hard y lento por diseño.
+- Dificulta cracking masivo con GPU/ASIC tras una filtración de base de datos.
+- Es el estándar moderno recomendado para password hashing.
 
-## 2) JWT en cookies seguras (HttpOnly + Secure)
+### 2) JWT en cookies seguras
 
 Qué hace:
-Después de autenticarse, el servidor entrega un JWT para mantener la sesión sin pedir login en cada acción.
 
-Detalle técnico importante:
-
-- El JWT se guarda en cookie segura, no en `localStorage`.
-- La cookie incluye banderas `HttpOnly` y `Secure`.
+- Tras login exitoso, el servidor emite JWT firmado.
+- El token se guarda en cookie con `HttpOnly`, `Secure` y `SameSite`.
 
 Por qué es ciberseguridad:
 
-- Mitiga robo de token vía XSS porque JavaScript del navegador no puede leer cookies `HttpOnly`.
-- `Secure` obliga envío por HTTPS en producción.
+- `HttpOnly` impide lectura del token desde JavaScript (mitiga robo por XSS).
+- `Secure` restringe envío de cookie a HTTPS en producción.
 
-## 3) MFA / 2FA (doble factor)
+### 3) MFA / 2FA con TOTP
 
 Qué hace:
-Obliga a ingresar un código temporal de 6 dígitos desde apps como Google Authenticator.
+
+- Se genera un secreto MFA por usuario y un QR para Google Authenticator.
+- El login se divide en dos pasos: credenciales + código TOTP.
 
 Por qué es ciberseguridad:
 
-- Protege contra credential stuffing.
-- Si el atacante solo tiene la contraseña, no puede completar el acceso sin el segundo factor físico.
+- Si la contraseña se filtra, el atacante sigue bloqueado sin el segundo factor.
+- Mitiga credential stuffing y reuse de credenciales.
 
-## Flujo lógico (explicable a cliente)
+## Flujo lógico para cliente
 
 1. Registro:
-   Usuario envía contraseña -> servidor aplica Argon2 -> se guarda hash en base de datos.
+   usuario envía email/contraseña -> backend valida -> hashea con Argon2id -> guarda en DB.
 
-2. Login Paso 1:
-   Usuario envía email/contraseña -> servidor valida credenciales -> solicita código MFA.
+2. Setup MFA:
+   backend genera secreto TOTP + QR -> usuario escanea en Authenticator -> confirma con código de 6 dígitos.
 
-3. Login Paso 2 (MFA):
-   Usuario envía código de 6 dígitos -> servidor valida contra secreto TOTP -> genera JWT.
+3. Login Paso 1:
+   usuario envía email/contraseña -> backend verifica -> responde `tempToken` (todavía sin sesión final).
 
-4. Persistencia segura:
-   El servidor envía JWT en cookie blindada (`HttpOnly` + `Secure`).
+4. Login Paso 2:
+   usuario envía `tempToken` + TOTP -> backend valida -> emite JWT en cookie segura.
 
-## ¿Por qué esto es viable comercialmente?
+5. Persistencia de sesión:
+   browser envía cookie al backend en rutas protegidas (`/api/auth/me`).
 
-Cualquier empresa que maneje datos sensibles (finanzas, salud, legal, RRHH, e-commerce) necesita este rigor.
+## Endpoints principales
 
-Se puede vender como:
+- `POST /api/auth/register`
+- `POST /api/auth/mfa/setup`
+- `POST /api/auth/mfa/verify-setup`
+- `POST /api/auth/login`
+- `POST /api/auth/login/2fa`
+- `GET /api/auth/me`
+- `POST /api/auth/logout`
+- `GET /api/health`
 
-**"Módulo de Identidad Blindado para Node.js"**
+## Frontend de demo (Sprint 4)
 
-Beneficios para empresa:
+Incluye una landing plana y atractiva en `public/` para presentación comercial y validación técnica:
 
-- Reduce riesgo de toma de cuentas.
-- Mejora la postura de seguridad en auditorías.
-- Acelera el cumplimiento de buenas prácticas.
-- Evita construir desde cero un sistema de autenticación robusto.
+- Registro
+- Setup MFA (QR)
+- Activación MFA
+- Login paso 1 y paso 2
+- Consulta de sesión protegida y logout
 
-## Diferencial técnico frente a login tradicional
+Ejecuta y abre:
 
-- Login tradicional: password + sesión simple.
-- Hardened auth: password robusto (Argon2) + token en canal protegido + segundo factor.
-- Resultado: defensa en capas (defense-in-depth).
+- `npm install`
+- `npm run dev`
+- `http://localhost:3000`
 
-## Alcance inicial del repositorio
+## Estructura principal
 
-Este repositorio se trabajará por sprints. En esta etapa se definirá e implementará cada sprint de forma incremental bajo tu aprobación.
+```text
+src/
+  config/env.js
+  controllers/authController.js
+  middleware/authMiddleware.js
+  middleware/errorMiddleware.js
+  services/mfaService.js
+  services/tokenService.js
+  services/userStore.js
+  utils/errors.js
+  utils/validators.js
+  server.js
+public/
+  index.html
+  styles.css
+  app.js
+data/
+  users.json
+```
 
-Ver detalle en [SPRINTS.md](SPRINTS.md).
+## Variables de entorno clave
 
-## Recomendaciones para producción (cuando se implemente)
+Revisa `.env.example`:
 
-- Forzar HTTPS y HSTS.
-- Usar base de datos real y cifrado en reposo.
-- Añadir rate limiting y bloqueo por intentos fallidos.
-- Registrar eventos de seguridad y auditoría.
-- Implementar gestión de secretos y rotación de claves JWT.
-- Incorporar pruebas automáticas y validaciones de seguridad.
+- `JWT_SECRET`, `JWT_EXPIRES_IN`
+- `JWT_ISSUER`, `JWT_AUDIENCE`
+- `TEMP_JWT_AUDIENCE`, `TEMP_TOKEN_EXPIRES_IN`
+- `AUTH_COOKIE_NAME`, `COOKIE_SECURE`, `COOKIE_SAME_SITE`
+- `MFA_ISSUER`
+
+## Viabilidad comercial
+
+Este módulo es ideal para sectores con datos sensibles (finanzas, salud, legal, e-commerce B2B):
+
+- reduce riesgo de fraude y account takeover,
+- acelera auditorías de seguridad,
+- ofrece una base robusta reutilizable para nuevos productos.
+
+## Recomendaciones para producción
+
+- Forzar HTTPS, HSTS y cabeceras de seguridad.
+- Migrar `data/users.json` a base de datos real con cifrado en reposo.
+- Añadir rate limiting, anti-bruteforce y lockout temporal.
+- Incluir trazabilidad de eventos de seguridad (SIEM/SOC).
+- Gestionar rotación de secretos y llaves JWT.
 
 ## Estado actual
 
-- Repositorio reiniciado desde cero.
-- Documentación base creada.
-- Esperando tu indicación para iniciar Sprint 1.
+- Sprint 1 completado ✅
+- Sprint 2 completado ✅
+- Sprint 3 completado ✅
+- Sprint 4 completado ✅
+- Sprint 5 pendiente (hardening adicional opcional)

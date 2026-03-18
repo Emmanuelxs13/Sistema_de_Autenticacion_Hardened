@@ -3,8 +3,21 @@ const argon2 = require("argon2");
 const env = require("../config/env");
 const { HttpError } = require("../utils/errors");
 const { isValidEmail, isStrongPassword } = require("../utils/validators");
-const { findByEmail, findById, insertUser } = require("../services/userStore");
-const { signAccessToken } = require("../services/tokenService");
+const {
+  findByEmail,
+  findById,
+  insertUser,
+  updateUser,
+} = require("../services/userStore");
+const {
+  signAccessToken,
+  signTempToken,
+  verifyTempToken,
+} = require("../services/tokenService");
+const {
+  generateMfaSecret,
+  verifyTotpToken,
+} = require("../services/mfaService");
 
 function setAuthCookie(res, token) {
   // Cookie segura: HttpOnly bloquea lectura por JS; Secure fuerza HTTPS en producción.
@@ -59,6 +72,11 @@ async function register(req, res, next) {
       id: crypto.randomUUID(),
       email,
       passwordHash,
+      mfa: {
+        enabled: false,
+        secretBase32: null,
+        tempSecretBase32: null,
+      },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -73,6 +91,78 @@ async function register(req, res, next) {
         createdAt: user.createdAt,
       },
     });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function mfaSetup(req, res, next) {
+  try {
+    const email = String(req.body.email || "")
+      .toLowerCase()
+      .trim();
+
+    const user = await findByEmail(email);
+    if (!user) {
+      throw new HttpError(404, "Usuario no encontrado");
+    }
+
+    const mfaSecret = await generateMfaSecret(user.email, env.mfaIssuer);
+
+    await updateUser(user.id, (current) => ({
+      ...current,
+      mfa: {
+        ...current.mfa,
+        tempSecretBase32: mfaSecret.base32,
+      },
+      updatedAt: new Date().toISOString(),
+    }));
+
+    return res.json({
+      message:
+        "QR MFA generado. Escanéalo y luego verifica con un código TOTP.",
+      mfaSetup: {
+        qrCodeDataUrl: mfaSecret.qrCodeDataUrl,
+        manualSecret: mfaSecret.base32,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function mfaVerifySetup(req, res, next) {
+  try {
+    const email = String(req.body.email || "")
+      .toLowerCase()
+      .trim();
+    const token = String(req.body.token || "").trim();
+
+    const user = await findByEmail(email);
+    if (!user) {
+      throw new HttpError(404, "Usuario no encontrado");
+    }
+
+    if (!user.mfa?.tempSecretBase32) {
+      throw new HttpError(400, "No hay un setup MFA pendiente");
+    }
+
+    const valid = verifyTotpToken(user.mfa.tempSecretBase32, token);
+    if (!valid) {
+      throw new HttpError(401, "Código MFA inválido");
+    }
+
+    await updateUser(user.id, (current) => ({
+      ...current,
+      mfa: {
+        enabled: true,
+        secretBase32: current.mfa.tempSecretBase32,
+        tempSecretBase32: null,
+      },
+      updatedAt: new Date().toISOString(),
+    }));
+
+    return res.json({ message: "MFA activado correctamente" });
   } catch (err) {
     return next(err);
   }
@@ -95,16 +185,65 @@ async function login(req, res, next) {
       throw new HttpError(401, "Credenciales inválidas");
     }
 
+    if (!user.mfa?.enabled || !user.mfa?.secretBase32) {
+      throw new HttpError(
+        403,
+        "MFA no activado. Completa setup MFA antes de iniciar sesión.",
+      );
+    }
+
+    // Paso 1: devolvemos token temporal; todavía no hay sesión final.
+    const tempToken = signTempToken({
+      sub: user.id,
+      email: user.email,
+      requires2fa: true,
+    });
+
+    return res.json({
+      message: "Credenciales válidas. Ingresa código MFA para completar login.",
+      requires2FA: true,
+      tempToken,
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function login2fa(req, res, next) {
+  try {
+    const tempToken = String(req.body.tempToken || "").trim();
+    const mfaCode = String(req.body.mfaCode || "").trim();
+
+    if (!tempToken || !mfaCode) {
+      throw new HttpError(400, "tempToken y mfaCode son obligatorios");
+    }
+
+    const tempPayload = verifyTempToken(tempToken);
+    const user = await findById(tempPayload.sub);
+
+    if (!user) {
+      throw new HttpError(401, "Sesión temporal inválida");
+    }
+
+    if (!user.mfa?.enabled || !user.mfa?.secretBase32) {
+      throw new HttpError(403, "MFA no activado para este usuario");
+    }
+
+    const valid = verifyTotpToken(user.mfa.secretBase32, mfaCode);
+    if (!valid) {
+      throw new HttpError(401, "Código MFA incorrecto");
+    }
+
     const accessToken = signAccessToken({
       sub: user.id,
       email: user.email,
-      amr: ["pwd"],
+      amr: ["pwd", "mfa"],
     });
 
     setAuthCookie(res, accessToken);
 
     return res.json({
-      message: "Login exitoso. Cookie segura emitida.",
+      message: "Login MFA exitoso. Cookie segura emitida.",
       user: {
         id: user.id,
         email: user.email,
@@ -126,6 +265,7 @@ async function me(req, res, next) {
     return res.json({
       id: user.id,
       email: user.email,
+      mfaEnabled: Boolean(user.mfa?.enabled),
       createdAt: user.createdAt,
     });
   } catch (err) {
@@ -144,7 +284,10 @@ async function logout(_req, res, next) {
 
 module.exports = {
   register,
+  mfaSetup,
+  mfaVerifySetup,
   login,
+  login2fa,
   me,
   logout,
 };

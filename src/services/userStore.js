@@ -29,8 +29,22 @@ async function insertUser(user) {
   return user;
 }
 
+async function updateUser(userId, updater) {
+  const users = await readUsers();
+  const index = users.findIndex((user) => user.id === userId);
+
+  if (index === -1) {
+    return null;
+  }
+
+  users[index] = updater(users[index]);
+  await writeUsers(users);
+  return users[index];
+}
+
 module.exports = {
   findByEmail,
   findById,
   insertUser,
+  updateUser,
 };
