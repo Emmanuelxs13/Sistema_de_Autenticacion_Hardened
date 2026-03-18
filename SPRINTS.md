@@ -1,6 +1,6 @@
 # Plan de Sprints — Sistema de Autenticación "Hardened"
 
-Este documento define qué se hará en cada sprint. La ejecución será secuencial y solo se avanzará con tu confirmación.
+Este documento define qué se hará en cada sprint. La ejecución es secuencial y solo avanza con tu confirmación.
 
 ## ~~Sprint 1 — Fundaciones seguras (Argon2 + base del proyecto)~~ ✅
 
@@ -42,42 +42,42 @@ Criterio de aceptación:
 - ~~Ruta protegida responde solo si hay sesión válida.~~
 - ~~Token no se expone a JavaScript del cliente.~~
 
-## Sprint 3 — MFA/2FA (TOTP + QR)
+## ~~Sprint 3 — MFA/2FA (TOTP + QR)~~ ✅
 
 Objetivo:
-Agregar segundo factor para bloquear accesos con contraseña comprometida.
+~~Agregar segundo factor para bloquear accesos con contraseña comprometida.~~
 
 Entregables:
 
-- Generación de secreto TOTP por usuario.
-- QR para enrolar Google Authenticator.
-- Flujo de login en dos pasos:
-  1. credenciales,
-  2. código MFA.
-- Verificación de código TOTP.
-- Bloqueo de emisión de JWT final si MFA falla.
+- ~~Generación de secreto TOTP por usuario.~~
+- ~~QR para enrolar Google Authenticator.~~
+- ~~Flujo de login en dos pasos:~~
+  1. ~~credenciales,~~
+  2. ~~código MFA.~~
+- ~~Verificación de código TOTP.~~
+- ~~Bloqueo de emisión de JWT final si MFA falla.~~
 
 Criterio de aceptación:
 
-- Sin código MFA válido no se inicia sesión final.
-- Con MFA válido se completa login y se mantiene sesión segura.
+- ~~Sin código MFA válido no se inicia sesión final.~~
+- ~~Con MFA válido se completa login y se mantiene sesión segura.~~
 
-## Sprint 4 — Frontend plano + narrativa comercial
+## ~~Sprint 4 — Frontend plano + narrativa comercial~~ ✅
 
 Objetivo:
-Presentar el proyecto de forma clara, técnica y atractiva para demo/venta.
+~~Presentar el proyecto de forma clara, técnica y atractiva para demo/venta.~~
 
 Entregables:
 
-- Landing frontend plana y profesional.
-- Formularios para probar registro, login y MFA.
-- Mensajes de valor orientados a negocio.
-- README técnico/comercial final del producto.
+- ~~Landing frontend plana y profesional.~~
+- ~~Formularios para probar registro, login y MFA.~~
+- ~~Mensajes de valor orientados a negocio.~~
+- ~~README técnico/comercial final del producto.~~
 
 Criterio de aceptación:
 
-- Flujo completo demostrable desde la interfaz.
-- Documentación clara para cliente técnico y no técnico.
+- ~~Flujo completo demostrable desde la interfaz.~~
+- ~~Documentación clara para cliente técnico y no técnico.~~
 
 ## Sprint 5 — Hardening adicional y preparación productiva (opcional)
 
@@ -110,5 +110,7 @@ Criterio de aceptación:
 
 - Sprint completado: **Sprint 1** ✅
 - Sprint completado: **Sprint 2** ✅
-- Sprint activo: **esperando autorización para Sprint 3**.
-- Siguiente acción: iniciar Sprint 3 (MFA/2FA con TOTP + QR) cuando tú lo indiques.
+- Sprint completado: **Sprint 3** ✅
+- Sprint completado: **Sprint 4** ✅
+- Sprint activo: **esperando autorización para Sprint 5 (opcional)**.
+- Siguiente acción: iniciar hardening adicional cuando tú lo indiques.
