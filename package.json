@@ -14,7 +14,8 @@
     "argon2",
     "express",
     "jwt",
-    "sprint-2"
+    "mfa",
+    "sprint-3"
   ],
   "license": "MIT",
   "dependencies": {
@@ -22,7 +23,9 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
