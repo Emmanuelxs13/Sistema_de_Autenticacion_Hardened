@@ -1,5 +1,5 @@
-const fs = require("fs/promises");
-const path = require("path");
+const fs = require("node:fs/promises");
+const path = require("node:path");
 
 const dbPath = path.join(__dirname, "..", "..", "data", "users.json");
 
@@ -17,6 +17,11 @@ async function findByEmail(email) {
   return users.find((user) => user.email === email.toLowerCase()) || null;
 }
 
+async function findById(id) {
+  const users = await readUsers();
+  return users.find((user) => user.id === id) || null;
+}
+
 async function insertUser(user) {
   const users = await readUsers();
   users.push(user);
@@ -26,5 +31,6 @@ async function insertUser(user) {
 
 module.exports = {
   findByEmail,
+  findById,
   insertUser,
 };

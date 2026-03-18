@@ -13,13 +13,16 @@
     "security",
     "argon2",
     "express",
-    "sprint-1"
+    "jwt",
+    "sprint-2"
   ],
   "license": "MIT",
   "dependencies": {
     "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^16.6.1",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

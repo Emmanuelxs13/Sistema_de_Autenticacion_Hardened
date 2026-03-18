@@ -1,8 +1,28 @@
-const crypto = require("crypto");
+const crypto = require("node:crypto");
 const argon2 = require("argon2");
+const env = require("../config/env");
 const { HttpError } = require("../utils/errors");
 const { isValidEmail, isStrongPassword } = require("../utils/validators");
-const { findByEmail, insertUser } = require("../services/userStore");
+const { findByEmail, findById, insertUser } = require("../services/userStore");
+const { signAccessToken } = require("../services/tokenService");
+
+function setAuthCookie(res, token) {
+  // Cookie segura: HttpOnly bloquea lectura por JS; Secure fuerza HTTPS en producción.
+  res.cookie(env.authCookieName, token, {
+    httpOnly: true,
+    secure: env.cookieSecure,
+    sameSite: env.cookieSameSite,
+    maxAge: 1000 * 60 * 15,
+  });
+}
+
+function clearAuthCookie(res) {
+  res.clearCookie(env.authCookieName, {
+    httpOnly: true,
+    secure: env.cookieSecure,
+    sameSite: env.cookieSameSite,
+  });
+}
 
 async function register(req, res, next) {
   try {
@@ -58,6 +78,73 @@ async function register(req, res, next) {
   }
 }
 
+async function login(req, res, next) {
+  try {
+    const email = String(req.body.email || "")
+      .toLowerCase()
+      .trim();
+    const password = String(req.body.password || "");
+
+    const user = await findByEmail(email);
+    if (!user) {
+      throw new HttpError(401, "Credenciales inválidas");
+    }
+
+    const validPassword = await argon2.verify(user.passwordHash, password);
+    if (!validPassword) {
+      throw new HttpError(401, "Credenciales inválidas");
+    }
+
+    const accessToken = signAccessToken({
+      sub: user.id,
+      email: user.email,
+      amr: ["pwd"],
+    });
+
+    setAuthCookie(res, accessToken);
+
+    return res.json({
+      message: "Login exitoso. Cookie segura emitida.",
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function me(req, res, next) {
+  try {
+    const user = await findById(req.auth.sub);
+
+    if (!user) {
+      throw new HttpError(404, "Usuario no encontrado");
+    }
+
+    return res.json({
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function logout(_req, res, next) {
+  try {
+    clearAuthCookie(res);
+    return res.json({ message: "Sesión cerrada" });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   register,
+  login,
+  me,
+  logout,
 };
