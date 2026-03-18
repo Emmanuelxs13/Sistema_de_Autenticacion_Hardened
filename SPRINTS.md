@@ -22,25 +22,25 @@ Criterio de aceptación:
 - ~~La contraseña nunca se guarda en texto plano.~~
 - ~~El hash almacenado es Argon2.~~
 
-## Sprint 2 — Sesiones endurecidas (JWT + cookies seguras)
+## ~~Sprint 2 — Sesiones endurecidas (JWT + cookies seguras)~~ ✅
 
 Objetivo:
-Implementar autenticación por token con transporte seguro en cookie.
+~~Implementar autenticación por token con transporte seguro en cookie.~~
 
 Entregables:
 
-- Endpoint de login (password).
-- Generación de JWT firmado.
-- Emisión del JWT en cookie `HttpOnly`, `Secure`, `SameSite`.
-- Middleware de autenticación para rutas protegidas.
-- Endpoint de perfil protegido (`/me`).
-- Endpoint de logout (limpieza de cookie).
+- ~~Endpoint de login (password).~~
+- ~~Generación de JWT firmado.~~
+- ~~Emisión del JWT en cookie `HttpOnly`, `Secure`, `SameSite`.~~
+- ~~Middleware de autenticación para rutas protegidas.~~
+- ~~Endpoint de perfil protegido (`/me`).~~
+- ~~Endpoint de logout (limpieza de cookie).~~
 
 Criterio de aceptación:
 
-- Login exitoso emite cookie segura.
-- Ruta protegida responde solo si hay sesión válida.
-- Token no se expone a JavaScript del cliente.
+- ~~Login exitoso emite cookie segura.~~
+- ~~Ruta protegida responde solo si hay sesión válida.~~
+- ~~Token no se expone a JavaScript del cliente.~~
 
 ## Sprint 3 — MFA/2FA (TOTP + QR)
 
@@ -109,5 +109,6 @@ Criterio de aceptación:
 ## Estado actual
 
 - Sprint completado: **Sprint 1** ✅
-- Sprint activo: **esperando autorización para Sprint 2**.
-- Siguiente acción: iniciar Sprint 2 cuando tú lo indiques.
+- Sprint completado: **Sprint 2** ✅
+- Sprint activo: **esperando autorización para Sprint 3**.
+- Siguiente acción: iniciar Sprint 3 (MFA/2FA con TOTP + QR) cuando tú lo indiques.
