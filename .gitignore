@@ -33,6 +33,7 @@ data/users.json
 # Logs y reportes
 # =========================
 *.log
+data/auth-events.jsonl
 logs/
 npm-debug.log*
 yarn-debug.log*

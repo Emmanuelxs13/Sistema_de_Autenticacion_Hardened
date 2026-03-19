@@ -71,9 +71,21 @@ Por qué es ciberseguridad:
 - `POST /api/auth/mfa/verify-setup`
 - `POST /api/auth/login`
 - `POST /api/auth/login/2fa`
+- `POST /api/auth/refresh`
+- `GET /api/auth/audit-log`
 - `GET /api/auth/me`
 - `POST /api/auth/logout`
 - `GET /api/health`
+
+## Hardening Sprint 5
+
+Se agregaron controles de seguridad orientados a producción:
+
+- `helmet` para cabeceras HTTP seguras por defecto.
+- Rate limiting general para `/api/*` y específico para login/MFA.
+- Anti brute-force con lockout temporal por cuenta tras múltiples fallos.
+- Audit logging en formato JSONL (`data/auth-events.jsonl`) para trazabilidad.
+- Refresh token en cookie `HttpOnly` con rotación en `/api/auth/refresh`.
 
 ## Frontend de demo (Sprint 4)
 
@@ -120,7 +132,11 @@ Revisa `.env.example`:
 - `JWT_SECRET`, `JWT_EXPIRES_IN`
 - `JWT_ISSUER`, `JWT_AUDIENCE`
 - `TEMP_JWT_AUDIENCE`, `TEMP_TOKEN_EXPIRES_IN`
+- `REFRESH_JWT_AUDIENCE`, `REFRESH_TOKEN_EXPIRES_IN`, `REFRESH_COOKIE_NAME`
 - `AUTH_COOKIE_NAME`, `COOKIE_SECURE`, `COOKIE_SAME_SITE`
+- `LOGIN_RATE_LIMIT_WINDOW`, `LOGIN_RATE_LIMIT_MAX`
+- `ACCOUNT_LOCKOUT_THRESHOLD`, `ACCOUNT_LOCKOUT_DURATION`
+- `LOG_EVENTS_FILE`, `ENABLE_AUDIT_LOG`
 - `MFA_ISSUER`
 
 ## Viabilidad comercial
@@ -135,8 +151,8 @@ Este módulo es ideal para sectores con datos sensibles (finanzas, salud, legal,
 
 - Forzar HTTPS, HSTS y cabeceras de seguridad.
 - Migrar `data/users.json` a base de datos real con cifrado en reposo.
-- Añadir rate limiting, anti-bruteforce y lockout temporal.
-- Incluir trazabilidad de eventos de seguridad (SIEM/SOC).
+- Integrar monitoreo de rate limiting y lockouts en alertas operativas.
+- Enviar `auth-events.jsonl` a SIEM/SOC para detección de anomalías.
 - Gestionar rotación de secretos y llaves JWT.
 
 ## Estado actual
@@ -145,4 +161,4 @@ Este módulo es ideal para sectores con datos sensibles (finanzas, salud, legal,
 - Sprint 2 completado ✅
 - Sprint 3 completado ✅
 - Sprint 4 completado ✅
-- Sprint 5 pendiente (hardening adicional opcional)
+- Sprint 5 completado ✅

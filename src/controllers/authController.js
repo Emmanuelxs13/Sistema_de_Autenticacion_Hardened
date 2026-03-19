@@ -3,29 +3,33 @@ const argon2 = require("argon2");
 const env = require("../config/env");
 const { HttpError } = require("../utils/errors");
 const { isValidEmail, isStrongPassword } = require("../utils/validators");
-const {
-  findByEmail,
-  findById,
-  insertUser,
-  updateUser,
-} = require("../services/userStore");
+const { findByEmail, findById, insertUser, updateUser } = require("../services/userStore");
 const {
   signAccessToken,
   signTempToken,
   verifyTempToken,
+  signRefreshToken,
+  verifyRefreshToken,
 } = require("../services/tokenService");
-const {
-  generateMfaSecret,
-  verifyTotpToken,
-} = require("../services/mfaService");
+const { generateMfaSecret, verifyTotpToken } = require("../services/mfaService");
+const { logAuthEvent, getAuditLog: fetchAuditLog, getSecurityReport } = require("../services/auditService");
+const { recordFailedAttempt, clearFailedAttempts, isAccountLocked } = require("../services/rateLimitService");
 
 function setAuthCookie(res, token) {
-  // Cookie segura: HttpOnly bloquea lectura por JS; Secure fuerza HTTPS en producción.
   res.cookie(env.authCookieName, token, {
     httpOnly: true,
     secure: env.cookieSecure,
     sameSite: env.cookieSameSite,
     maxAge: 1000 * 60 * 15,
+  });
+}
+
+function setRefreshCookie(res, token) {
+  res.cookie(env.refreshCookieName, token, {
+    httpOnly: true,
+    secure: env.cookieSecure,
+    sameSite: env.cookieSameSite,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
   });
 }
 
@@ -37,11 +41,19 @@ function clearAuthCookie(res) {
   });
 }
 
+function clearRefreshCookie(res) {
+  res.clearCookie(env.refreshCookieName, {
+    httpOnly: true,
+    secure: env.cookieSecure,
+    sameSite: env.cookieSameSite,
+  });
+}
+
 async function register(req, res, next) {
+  const email = String(req.body.email || "").toLowerCase().trim();
+  const ip = req.ip || "unknown";
+
   try {
-    const email = String(req.body.email || "")
-      .toLowerCase()
-      .trim();
     const password = String(req.body.password || "");
 
     if (!isValidEmail(email)) {
@@ -60,7 +72,6 @@ async function register(req, res, next) {
       throw new HttpError(409, "Usuario ya registrado");
     }
 
-    // Argon2id es memory-hard: sube el costo de cracking con GPU.
     const passwordHash = await argon2.hash(password, {
       type: argon2.argon2id,
       memoryCost: 2 ** 16,
@@ -82,6 +93,7 @@ async function register(req, res, next) {
     };
 
     await insertUser(user);
+    await logAuthEvent("register", email, ip, true, { userAgent: req.get("user-agent") });
 
     return res.status(201).json({
       message: "Usuario registrado de forma segura con Argon2.",
@@ -92,16 +104,19 @@ async function register(req, res, next) {
       },
     });
   } catch (err) {
+    await logAuthEvent("register", email || "unknown", ip, false, {
+      userAgent: req.get("user-agent"),
+      reason: err.message,
+    });
     return next(err);
   }
 }
 
 async function mfaSetup(req, res, next) {
-  try {
-    const email = String(req.body.email || "")
-      .toLowerCase()
-      .trim();
+  const email = String(req.body.email || "").toLowerCase().trim();
+  const ip = req.ip || "unknown";
 
+  try {
     const user = await findByEmail(email);
     if (!user) {
       throw new HttpError(404, "Usuario no encontrado");
@@ -118,27 +133,32 @@ async function mfaSetup(req, res, next) {
       updatedAt: new Date().toISOString(),
     }));
 
+    await logAuthEvent("mfa_setup", email, ip, true, { userAgent: req.get("user-agent") });
+
     return res.json({
-      message:
-        "QR MFA generado. Escanéalo y luego verifica con un código TOTP.",
+      message: "QR MFA generado. Escanéalo y luego verifica con un código TOTP.",
       mfaSetup: {
         qrCodeDataUrl: mfaSecret.qrCodeDataUrl,
         manualSecret: mfaSecret.base32,
       },
     });
   } catch (err) {
+    await logAuthEvent("mfa_setup", email || "unknown", ip, false, {
+      userAgent: req.get("user-agent"),
+      reason: err.message,
+    });
     return next(err);
   }
 }
 
 async function mfaVerifySetup(req, res, next) {
-  try {
-    const email = String(req.body.email || "")
-      .toLowerCase()
-      .trim();
-    const token = String(req.body.token || "").trim();
+  const email = String(req.body.email || "").toLowerCase().trim();
+  const ip = req.ip || "unknown";
 
+  try {
+    const token = String(req.body.token || "").trim();
     const user = await findByEmail(email);
+
     if (!user) {
       throw new HttpError(404, "Usuario no encontrado");
     }
@@ -162,28 +182,42 @@ async function mfaVerifySetup(req, res, next) {
       updatedAt: new Date().toISOString(),
     }));
 
+    await logAuthEvent("mfa_verify_setup", email, ip, true, { userAgent: req.get("user-agent") });
     return res.json({ message: "MFA activado correctamente" });
   } catch (err) {
+    await logAuthEvent("mfa_verify_setup", email || "unknown", ip, false, {
+      userAgent: req.get("user-agent"),
+      reason: err.message,
+    });
     return next(err);
   }
 }
 
 async function login(req, res, next) {
+  const email = String(req.body.email || "").toLowerCase().trim();
+  const ip = req.ip || "unknown";
+
   try {
-    const email = String(req.body.email || "")
-      .toLowerCase()
-      .trim();
     const password = String(req.body.password || "");
+
+    const lockStatus = isAccountLocked(email);
+    if (lockStatus.isLocked) {
+      throw new HttpError(429, "Cuenta bloqueada temporalmente por seguridad");
+    }
 
     const user = await findByEmail(email);
     if (!user) {
+      recordFailedAttempt(email, ip);
       throw new HttpError(401, "Credenciales inválidas");
     }
 
     const validPassword = await argon2.verify(user.passwordHash, password);
     if (!validPassword) {
+      recordFailedAttempt(email, ip);
       throw new HttpError(401, "Credenciales inválidas");
     }
+
+    clearFailedAttempts(email);
 
     if (!user.mfa?.enabled || !user.mfa?.secretBase32) {
       throw new HttpError(
@@ -192,12 +226,13 @@ async function login(req, res, next) {
       );
     }
 
-    // Paso 1: devolvemos token temporal; todavía no hay sesión final.
     const tempToken = signTempToken({
       sub: user.id,
       email: user.email,
       requires2fa: true,
     });
+
+    await logAuthEvent("login_attempt", email, ip, true, { userAgent: req.get("user-agent") });
 
     return res.json({
       message: "Credenciales válidas. Ingresa código MFA para completar login.",
@@ -205,11 +240,17 @@ async function login(req, res, next) {
       tempToken,
     });
   } catch (err) {
+    await logAuthEvent("login_attempt", email || "unknown", ip, false, {
+      userAgent: req.get("user-agent"),
+      reason: err.message,
+    });
     return next(err);
   }
 }
 
 async function login2fa(req, res, next) {
+  const ip = req.ip || "unknown";
+
   try {
     const tempToken = String(req.body.tempToken || "").trim();
     const mfaCode = String(req.body.mfaCode || "").trim();
@@ -239,8 +280,16 @@ async function login2fa(req, res, next) {
       email: user.email,
       amr: ["pwd", "mfa"],
     });
+    const refreshToken = signRefreshToken({
+      sub: user.id,
+      email: user.email,
+      tokenType: "refresh",
+    });
 
     setAuthCookie(res, accessToken);
+    setRefreshCookie(res, refreshToken);
+
+    await logAuthEvent("login_2fa", user.email, ip, true, { userAgent: req.get("user-agent") });
 
     return res.json({
       message: "Login MFA exitoso. Cookie segura emitida.",
@@ -250,6 +299,59 @@ async function login2fa(req, res, next) {
       },
     });
   } catch (err) {
+    await logAuthEvent("login_2fa", "unknown", ip, false, {
+      userAgent: req.get("user-agent"),
+      reason: err.message,
+    });
+    return next(err);
+  }
+}
+
+async function refreshToken(req, res, next) {
+  const ip = req.ip || "unknown";
+
+  try {
+    const incomingRefreshToken = req.cookies[env.refreshCookieName];
+    if (!incomingRefreshToken) {
+      throw new HttpError(401, "No refresh token en cookie");
+    }
+
+    const payload = verifyRefreshToken(incomingRefreshToken);
+    const user = await findById(payload.sub);
+
+    if (!user) {
+      throw new HttpError(401, "Usuario no encontrado");
+    }
+
+    const newAccessToken = signAccessToken({
+      sub: user.id,
+      email: user.email,
+      amr: ["refresh"],
+    });
+
+    const newRefreshToken = signRefreshToken({
+      sub: user.id,
+      email: user.email,
+      tokenType: "refresh",
+    });
+
+    setAuthCookie(res, newAccessToken);
+    setRefreshCookie(res, newRefreshToken);
+
+    await logAuthEvent("refresh_token", user.email, ip, true, { userAgent: req.get("user-agent") });
+
+    return res.json({
+      message: "Token refrescado exitosamente",
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    await logAuthEvent("refresh_token", "unknown", ip, false, {
+      userAgent: req.get("user-agent"),
+      reason: err.message,
+    });
     return next(err);
   }
 }
@@ -273,9 +375,32 @@ async function me(req, res, next) {
   }
 }
 
-async function logout(_req, res, next) {
+async function getAuditLog(req, res, next) {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 50, 500);
+    const events = await fetchAuditLog(limit);
+    const report = await getSecurityReport();
+
+    return res.json({
+      message: "Audit log obtenido",
+      securityReport: report,
+      recentEvents: events,
+      requestedBy: req.auth.email,
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function logout(req, res, next) {
   try {
     clearAuthCookie(res);
+    clearRefreshCookie(res);
+
+    const email = req.auth?.email || "unknown";
+    const ip = req.ip || "unknown";
+    await logAuthEvent("logout", email, ip, true, { userAgent: req.get("user-agent") });
+
     return res.json({ message: "Sesión cerrada" });
   } catch (err) {
     return next(err);
@@ -288,6 +413,8 @@ module.exports = {
   mfaVerifySetup,
   login,
   login2fa,
+  refreshToken,
+  getAuditLog,
   me,
   logout,
 };

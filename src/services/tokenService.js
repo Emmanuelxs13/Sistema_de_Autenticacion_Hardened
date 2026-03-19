@@ -31,9 +31,26 @@ function verifyTempToken(token) {
   });
 }
 
+function signRefreshToken(payload) {
+  return jwt.sign(payload, env.jwtSecret, {
+    expiresIn: env.refreshTokenExpiresIn,
+    issuer: env.jwtIssuer,
+    audience: env.refreshJwtAudience,
+  });
+}
+
+function verifyRefreshToken(token) {
+  return jwt.verify(token, env.jwtSecret, {
+    issuer: env.jwtIssuer,
+    audience: env.refreshJwtAudience,
+  });
+}
+
 module.exports = {
   signAccessToken,
   verifyAccessToken,
   signTempToken,
   verifyTempToken,
+  signRefreshToken,
+  verifyRefreshToken,
 };

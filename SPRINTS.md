@@ -79,23 +79,23 @@ Criterio de aceptación:
 - ~~Flujo completo demostrable desde la interfaz.~~
 - ~~Documentación clara para cliente técnico y no técnico.~~
 
-## Sprint 5 — Hardening adicional y preparación productiva (opcional)
+## ~~Sprint 5 — Hardening adicional y preparación productiva (opcional)~~ ✅
 
 Objetivo:
-Subir madurez de seguridad para despliegue real.
+~~Subir madurez de seguridad para despliegue real.~~
 
 Entregables:
 
-- Rate limiting / anti brute force.
-- Políticas de seguridad HTTP (helmet, CORS estricto, etc.).
-- Logs de seguridad y trazabilidad de eventos.
-- Estrategia de refresh tokens/rotación (si aplica).
-- Pruebas básicas de seguridad y checklist preproducción.
+- ~~Rate limiting / anti brute force.~~
+- ~~Políticas de seguridad HTTP (helmet, CORS estricto, etc.).~~
+- ~~Logs de seguridad y trazabilidad de eventos.~~
+- ~~Estrategia de refresh tokens/rotación (si aplica).~~
+- ~~Pruebas básicas de seguridad y checklist preproducción.~~
 
 Criterio de aceptación:
 
-- Controles adicionales activos y validados.
-- Checklist de salida a producción documentado.
+- ~~Controles adicionales activos y validados.~~
+- ~~Checklist de salida a producción documentado.~~
 
 ## Regla de ejecución
 
@@ -112,5 +112,6 @@ Criterio de aceptación:
 - Sprint completado: **Sprint 2** ✅
 - Sprint completado: **Sprint 3** ✅
 - Sprint completado: **Sprint 4** ✅
-- Sprint activo: **esperando autorización para Sprint 5 (opcional)**.
-- Siguiente acción: iniciar hardening adicional cuando tú lo indiques.
+- Sprint completado: **Sprint 5** ✅
+- Sprint activo: **cerrado (hardening base implementado)**.
+- Siguiente acción: pruebas avanzadas (carga/seguridad) y despliegue en entorno real.
