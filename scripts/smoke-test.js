@@ -14,7 +14,9 @@ function getJson(pathname) {
           const body = JSON.parse(data || "{}");
           resolve({ statusCode: res.statusCode || 0, body });
         } catch (error) {
-          reject(new Error(`Respuesta inválida en ${pathname}: ${error.message}`));
+          reject(
+            new Error(`Respuesta inválida en ${pathname}: ${error.message}`),
+          );
         }
       });
     });
