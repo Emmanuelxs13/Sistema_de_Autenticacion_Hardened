@@ -88,9 +88,7 @@ document
         const img = document.createElement("img");
         img.src = data.mfaSetup.qrCodeDataUrl;
         img.alt = "QR MFA";
-        img.style.maxWidth = "180px";
-        img.style.marginTop = "8px";
-        img.style.borderRadius = "8px";
+        img.className = "mfa-qr";
 
         document.getElementById("mfa-setup-result").appendChild(img);
       }

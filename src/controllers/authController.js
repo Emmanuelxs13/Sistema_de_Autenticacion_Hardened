@@ -414,6 +414,20 @@ async function me(req, res, next) {
 
 async function getAuditLog(req, res, next) {
   try {
+    const requesterEmail = String(req.auth?.email || "")
+      .toLowerCase()
+      .trim();
+
+    if (
+      env.auditAdminEmails.length > 0 &&
+      !env.auditAdminEmails.includes(requesterEmail)
+    ) {
+      throw new HttpError(
+        403,
+        "No autorizado para consultar logs de auditoría",
+      );
+    }
+
     const limit = Math.min(Number(req.query.limit) || 50, 500);
     const events = await fetchAuditLog(limit);
     const report = await getSecurityReport();
@@ -422,7 +436,7 @@ async function getAuditLog(req, res, next) {
       message: "Audit log obtenido",
       securityReport: report,
       recentEvents: events,
-      requestedBy: req.auth.email,
+      requestedBy: requesterEmail,
     });
   } catch (err) {
     return next(err);

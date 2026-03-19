@@ -192,6 +192,12 @@ button:hover {
   border-left: 4px solid var(--danger);
 }
 
+.mfa-qr {
+  max-width: 180px;
+  margin-top: 8px;
+  border-radius: 8px;
+}
+
 .btn-row {
   display: flex;
   gap: 0.55rem;

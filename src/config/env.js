@@ -2,6 +2,16 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
+const trustedOrigins = String(process.env.TRUSTED_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const auditAdminEmails = String(process.env.AUDIT_ADMIN_EMAILS || "")
+  .split(",")
+  .map((email) => email.toLowerCase().trim())
+  .filter(Boolean);
+
 module.exports = {
   port: Number(process.env.PORT || 3000),
   nodeEnv: process.env.NODE_ENV || "development",
@@ -31,4 +41,7 @@ module.exports = {
   // Sprint 5: Logging
   logEventsFile: process.env.LOG_EVENTS_FILE || "data/auth-events.jsonl",
   enableAuditLog: String(process.env.ENABLE_AUDIT_LOG || "true") === "true",
+  enableCsp: String(process.env.ENABLE_CSP || "true") === "true",
+  trustedOrigins,
+  auditAdminEmails,
 };

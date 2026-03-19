@@ -76,16 +76,21 @@ Por qué es ciberseguridad:
 - `GET /api/auth/me`
 - `POST /api/auth/logout`
 - `GET /api/health`
+- `GET /api/health/live`
+- `GET /api/health/ready`
 
 ## Hardening Sprint 5
 
 Se agregaron controles de seguridad orientados a producción:
 
 - `helmet` para cabeceras HTTP seguras por defecto.
+- CSP estricta para scripts/estilos/recursos de la app.
+- CORS estricto por lista de orígenes confiables.
 - Rate limiting general para `/api/*` y específico para login/MFA.
 - Anti brute-force con lockout temporal por cuenta tras múltiples fallos.
 - Audit logging en formato JSONL (`data/auth-events.jsonl`) para trazabilidad.
 - Refresh token en cookie `HttpOnly` con rotación en `/api/auth/refresh`.
+- Health checks separados para liveness y readiness.
 
 ## Frontend de demo (Sprint 4)
 
@@ -137,6 +142,7 @@ Revisa `.env.example`:
 - `LOGIN_RATE_LIMIT_WINDOW`, `LOGIN_RATE_LIMIT_MAX`
 - `ACCOUNT_LOCKOUT_THRESHOLD`, `ACCOUNT_LOCKOUT_DURATION`
 - `LOG_EVENTS_FILE`, `ENABLE_AUDIT_LOG`
+- `ENABLE_CSP`, `TRUSTED_ORIGINS`, `AUDIT_ADMIN_EMAILS`
 - `MFA_ISSUER`
 
 ## Viabilidad comercial
@@ -154,6 +160,14 @@ Este módulo es ideal para sectores con datos sensibles (finanzas, salud, legal,
 - Integrar monitoreo de rate limiting y lockouts en alertas operativas.
 - Enviar `auth-events.jsonl` a SIEM/SOC para detección de anomalías.
 - Gestionar rotación de secretos y llaves JWT.
+
+Checklist mínimo para salida a producción:
+
+1. Definir `JWT_SECRET` fuerte y único.
+2. Configurar `COOKIE_SECURE=true`.
+3. Configurar `TRUSTED_ORIGINS` con dominios reales del frontend.
+4. Definir `AUDIT_ADMIN_EMAILS` para restringir acceso a `/api/auth/audit-log`.
+5. Verificar `GET /api/health/ready` en el pipeline antes de publicar.
 
 ## Estado actual
 
