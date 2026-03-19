@@ -15,6 +15,31 @@ async function postJson(url, body) {
   return data;
 }
 
+function activateView(viewName) {
+  const tabs = document.querySelectorAll(".nav-tab");
+  const views = document.querySelectorAll(".view");
+
+  tabs.forEach((tab) => {
+    const isActive = tab.dataset.view === viewName;
+    tab.classList.toggle("active", isActive);
+    tab.setAttribute("aria-pressed", String(isActive));
+  });
+
+  views.forEach((view) => {
+    const isActive = view.id === `view-${viewName}`;
+    view.classList.toggle("active", isActive);
+    view.hidden = !isActive;
+  });
+}
+
+document.querySelectorAll(".nav-tab").forEach((tab) => {
+  tab.addEventListener("click", () => activateView(tab.dataset.view));
+});
+
+document.getElementById("go-demo-btn").addEventListener("click", () => {
+  activateView("demo");
+});
+
 function renderResult(elementId, payload, isError = false) {
   const target = document.getElementById(elementId);
   target.classList.toggle("error", isError);
@@ -149,5 +174,31 @@ document.getElementById("logout-btn").addEventListener("click", async () => {
     renderResult("session-result", data);
   } catch (error) {
     renderResult("session-result", error.message, true);
+  }
+});
+
+document.getElementById("refresh-btn").addEventListener("click", async () => {
+  try {
+    const data = await postJson("/api/auth/refresh", {});
+    renderResult("security-result", data);
+  } catch (error) {
+    renderResult("security-result", error.message, true);
+  }
+});
+
+document.getElementById("audit-btn").addEventListener("click", async () => {
+  try {
+    const response = await fetch("/api/auth/audit-log?limit=20", {
+      credentials: "include",
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.error || "No autorizado para ver auditoría");
+    }
+
+    renderResult("security-result", data);
+  } catch (error) {
+    renderResult("security-result", error.message, true);
   }
 });
