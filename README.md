@@ -108,6 +108,26 @@ Ejecuta y abre:
 - `npm run dev`
 - `http://localhost:3000`
 
+## Uso sin servidores (modo ejercicio)
+
+No necesitas contratar servidores para demostrar el proyecto. Puedes ejecutarlo
+desde tu equipo y compartirlo de estas formas:
+
+1. Uso local (misma PC):
+   - inicia con `npm run dev`
+   - abre `http://localhost:3000`
+
+2. Uso en red local (otras personas en tu Wi‑Fi/LAN):
+   - mantén `HOST=0.0.0.0` y `PORT=3000`
+   - inicia con `npm start`
+   - comparte la URL de red local que imprime el backend (ejemplo: `http://192.168.x.x:3000`)
+
+3. Demo temporal por internet (opcional, sin servidor propio):
+   - usa un túnel como Cloudflare Tunnel o ngrok desde tu máquina local.
+
+Importante: en este modo, la app depende de que tu equipo esté encendido y con
+el proceso de Node activo.
+
 ## Automatización CI
 
 Se incluye pipeline en [`.github/workflows/ci.yml`](.github/workflows/ci.yml) con:

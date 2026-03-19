@@ -1,4 +1,5 @@
 const path = require("node:path");
+const os = require("node:os");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -135,6 +136,14 @@ app.post("/api/auth/logout", authMiddleware, authController.logout);
 
 app.use(errorMiddleware);
 
-app.listen(env.port, () => {
+app.listen(env.port, env.host, () => {
+  const interfaces = os.networkInterfaces();
+  const lanIp = Object.values(interfaces)
+    .flat()
+    .find((item) => item?.family === "IPv4" && !item?.internal)?.address;
+
   console.log(`Servidor Sprint 5 corriendo en http://localhost:${env.port}`);
+  if (lanIp) {
+    console.log(`Acceso en red local: http://${lanIp}:${env.port}`);
+  }
 });
