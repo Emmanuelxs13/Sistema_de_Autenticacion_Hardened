@@ -3,23 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hardened Auth · MFA + JWT</title>
+    <title>Sistema Seguro de Autenticación</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <header class="hero">
       <div class="hero__content">
-        <p class="eyebrow">Proyecto 1 · Sistema de Autenticación Hardened</p>
-        <h1>Protección de identidad <span>lista para producción</span></h1>
+        <h1>Autenticación segura <span>lista para producción</span></h1>
         <p class="subtitle">
-          Login reforzado con Argon2, JWT en cookie blindada, MFA/2FA TOTP y
-          controles de hardening para despliegue real.
+          Sistema de autenticación de nivel empresarial con protección de
+          identidad, verificación de dos factores y auditoría completa para
+          aplicaciones modernas.
         </p>
         <ul class="chips">
-          <li>Argon2id</li>
-          <li>JWT HttpOnly/Secure</li>
-          <li>TOTP + QR</li>
-          <li>Rate limiting + Audit Log</li>
+          <li>Hashing seguro</li>
+          <li>Sesiones protegidas</li>
+          <li>Dos factores (2FA)</li>
+          <li>Auditoría y monitoreo</li>
         </ul>
 
         <nav class="top-nav" aria-label="Navegación principal">
@@ -55,11 +55,11 @@
       >
         <div class="grid info-grid">
           <section class="card info-hero">
-            <h2 id="inicio-title">¿Qué es Hardened Auth?</h2>
+            <h2 id="inicio-title">¿Cómo funciona?</h2>
             <p>
-              Es una base de autenticación segura para aplicaciones Node.js,
-              orientada a reducir fraude, takeover de cuentas y riesgo de
-              sesión.
+              Sistema de autenticación empresarial diseñado para proteger las
+              cuentas de usuarios con múltiples capas de seguridad, incluyendo
+              verificación de dos factores y auditoría detallada de accesos.
             </p>
             <div class="btn-row">
               <button type="button" id="go-demo-btn">
@@ -69,43 +69,44 @@
           </section>
 
           <section class="card">
-            <h2>Servicios de seguridad incluidos</h2>
+            <h2>Características de seguridad</h2>
             <ul>
-              <li>Hash de contraseñas con Argon2id (memory-hard).</li>
+              <li>Contraseñas protegidas con cifrado de nivel empresarial.</li>
               <li>
-                Sesión con JWT en cookies `HttpOnly`, `Secure`, `SameSite`.
+                Sesiones seguras con cookies cifradas y protegidas contra
+                ataques.
               </li>
-              <li>MFA/2FA TOTP con QR para Google Authenticator.</li>
-              <li>Rate limiting en rutas críticas de autenticación.</li>
-              <li>Anti brute-force con bloqueo temporal por cuenta.</li>
-              <li>Refresh token con rotación para continuidad de sesión.</li>
-              <li>Audit log de eventos de seguridad para trazabilidad.</li>
+              <li>Autenticación de dos factores con códigos dinámicos.</li>
+              <li>Protección contra intentos de acceso no autorizado.</li>
+              <li>Bloqueo automático tras múltiples intentos fallidos.</li>
+              <li>Renovación automática de sesiones para mayor comodidad.</li>
+              <li>Registro completo de eventos de seguridad para auditoría.</li>
             </ul>
           </section>
 
           <section class="card">
-            <h2>Qué puedes hacer con la app</h2>
+            <h2>Funcionalidades disponibles</h2>
             <ul>
-              <li>Registrar usuarios con validación fuerte de contraseña.</li>
-              <li>Configurar y activar MFA en dos pasos.</li>
-              <li>Autenticar con flujo password + TOTP.</li>
-              <li>Renovar sesión con endpoint de refresh.</li>
-              <li>Inspeccionar actividad con endpoint de auditoría.</li>
+              <li>Crear cuentas con verificación de contraseñas fuertes.</li>
+              <li>Configurar y habilitar autenticación de dos factores.</li>
+              <li>Acceder con contraseña y código de verificación.</li>
+              <li>Mantener sesiones activas de forma segura.</li>
+              <li>Revisar el historial completo de accesos y actividades.</li>
             </ul>
           </section>
 
           <section class="card">
-            <h2>Endpoints principales</h2>
+            <h2>APIs disponibles</h2>
             <ul class="endpoint-list">
-              <li><code>POST /api/auth/register</code></li>
-              <li><code>POST /api/auth/mfa/setup</code></li>
-              <li><code>POST /api/auth/mfa/verify-setup</code></li>
-              <li><code>POST /api/auth/login</code></li>
-              <li><code>POST /api/auth/login/2fa</code></li>
-              <li><code>POST /api/auth/refresh</code></li>
-              <li><code>GET /api/auth/audit-log</code></li>
-              <li><code>GET /api/auth/me</code></li>
-              <li><code>POST /api/auth/logout</code></li>
+              <li>Crear nueva cuenta de usuario</li>
+              <li>Configurar autenticación de dos factores</li>
+              <li>Verificar código de dos factores</li>
+              <li>Iniciar sesión (paso 1)</li>
+              <li>Completar sesión con 2FA (paso 2)</li>
+              <li>Renovar sesión activa</li>
+              <li>Consultar historial de accesos</li>
+              <li>Obtener datos de perfil</li>
+              <li>Cerrar sesión</li>
             </ul>
           </section>
         </div>
@@ -114,90 +115,93 @@
       <section id="view-demo" class="view" aria-labelledby="demo-title" hidden>
         <div class="grid">
           <section class="card">
-            <h2 id="demo-title">1) Registro</h2>
-            <p>Crea un usuario con contraseña hasheada usando Argon2id.</p>
+            <h2 id="demo-title">1) Crear cuenta</h2>
+            <p>Registra una nueva cuenta de usuario con contraseña segura.</p>
             <form id="register-form">
               <label>Email <input type="email" name="email" required /></label>
               <label
                 >Password <input type="password" name="password" required
               /></label>
-              <button type="submit">Registrar</button>
+              <button type="submit">Crear cuenta</button>
             </form>
             <div id="register-result" class="result"></div>
           </section>
 
           <section class="card">
-            <h2>2) Setup MFA</h2>
-            <p>Genera QR y secreto para enrolar Authenticator.</p>
+            <h2>2) Configurar 2FA</h2>
+            <p>Genera código QR para vincular autenticador de dos factores.</p>
             <form id="mfa-setup-form">
               <label>Email <input type="email" name="email" required /></label>
-              <button type="submit">Generar QR MFA</button>
+              <button type="submit">Generar QR 2FA</button>
             </form>
             <div id="mfa-setup-result" class="result"></div>
           </section>
 
           <section class="card">
-            <h2>3) Activar MFA</h2>
+            <h2>3) Activar 2FA</h2>
             <p>
-              Valida un código TOTP de 6 dígitos para activar segundo factor.
+              Verifica el código de 6 dígitos para habilitar autenticación de
+              dos factores.
             </p>
             <form id="mfa-verify-form">
               <label>Email <input type="email" name="email" required /></label>
               <label
-                >Código TOTP
+                >Código de verificación
                 <input type="text" name="token" maxlength="6" required
               /></label>
-              <button type="submit">Activar MFA</button>
+              <button type="submit">Activar 2FA</button>
             </form>
             <div id="mfa-verify-result" class="result"></div>
           </section>
 
           <section class="card">
-            <h2>4) Login paso 1</h2>
-            <p>Valida credenciales y obtiene token temporal.</p>
+            <h2>4) Iniciar sesión (Paso 1)</h2>
+            <p>Inicia sesión con correo y contraseña.</p>
             <form id="login-step1-form">
               <label>Email <input type="email" name="email" required /></label>
               <label
                 >Password <input type="password" name="password" required
               /></label>
-              <button type="submit">Iniciar Login</button>
+              <button type="submit">Iniciar sesión</button>
             </form>
             <div id="login-step1-result" class="result"></div>
           </section>
 
           <section class="card">
-            <h2>5) Login paso 2 (MFA)</h2>
-            <p>Con token temporal + TOTP se emite JWT en cookie segura.</p>
+            <h2>5) Completar sesión (Paso 2 - 2FA)</h2>
+            <p>Verifica el código de dos factores para completar el acceso.</p>
             <form id="login-step2-form">
               <label
-                >Temp Token
+                >Token temporal
                 <textarea name="tempToken" rows="3" required></textarea>
               </label>
               <label
-                >Código TOTP
+                >Código de verificación
                 <input type="text" name="mfaCode" maxlength="6" required
               /></label>
-              <button type="submit">Completar Login</button>
+              <button type="submit">Completar sesión</button>
             </form>
             <div id="login-step2-result" class="result"></div>
           </section>
 
           <section class="card actions">
-            <h2>Sesión protegida</h2>
-            <p>Consulta perfil con cookie HttpOnly y luego cierra sesión.</p>
+            <h2>Gestión de sesión</h2>
+            <p>Ver perfil de usuario y cerrar sesión de forma segura.</p>
             <div class="btn-row">
-              <button id="me-btn" type="button">Ver /me</button>
+              <button id="me-btn" type="button">Ver perfil</button>
               <button id="logout-btn" type="button">Cerrar sesión</button>
             </div>
             <div id="session-result" class="result"></div>
           </section>
 
           <section class="card">
-            <h2>Sprint 5 (Hardening)</h2>
-            <p>Valida funciones adicionales para seguridad productiva.</p>
+            <h2>Validación de seguridad</h2>
+            <p>
+              Funciones avanzadas para mantener la sesión y auditar accesos.
+            </p>
             <div class="btn-row">
-              <button id="refresh-btn" type="button">Probar /refresh</button>
-              <button id="audit-btn" type="button">Ver audit log</button>
+              <button id="refresh-btn" type="button">Renovar sesión</button>
+              <button id="audit-btn" type="button">Ver historial</button>
             </div>
             <div id="security-result" class="result"></div>
           </section>
@@ -206,7 +210,7 @@
     </main>
 
     <footer>
-      <p>Hardened Auth · Frontend informativo + demo técnica integrada</p>
+      <p>Sistema Seguro de Autenticación · Enterprise Edition</p>
     </footer>
 
     <script src="./app.js"></script>

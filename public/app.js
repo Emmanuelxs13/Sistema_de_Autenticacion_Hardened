@@ -4,14 +4,14 @@ function resolveApiError(response, data, url) {
   }
 
   if (response.status === 404) {
-    return `No se encontró ${url}. Abre la app desde http://localhost:3000 ejecutando npm start.`;
+    return `No se encontró ${url}. Por favor, verifica que la aplicación esté iniciada correctamente.`;
   }
 
   if (response.status >= 500) {
-    return "Backend disponible pero con error interno. Revisa la terminal donde corre node src/server.js.";
+    return "El servidor está experimentando dificultades. Por favor, intenta de nuevo en unos momentos.";
   }
 
-  return `Error HTTP ${response.status} en ${url}.`;
+  return `Error en la solicitud: ${response.status}`;
 }
 
 async function postJson(url, body) {
@@ -25,7 +25,7 @@ async function postJson(url, body) {
     });
   } catch (error) {
     throw new Error(
-      `No hay conexión con el backend. Inicia el servidor con npm start y abre http://localhost:3000. (${error.message})`,
+      `No hay conexión con el servidor. Por favor, verifica que la aplicación esté ejecutándose.`,
     );
   }
 
@@ -50,19 +50,20 @@ function checkBackendStatus() {
     )
     .then(({ response, data }) => {
       if (response.ok && data?.ok) {
-        statusEl.textContent = "Backend conectado correctamente.";
+        statusEl.textContent =
+          "Servicio disponible y funcionando correctamente.";
         statusEl.classList.add("ok");
         statusEl.classList.remove("warn", "error");
         return;
       }
 
       statusEl.textContent =
-        "Backend no responde correctamente. Revisa la terminal del servidor.";
+        "Servicio disponible pero reporta problemas internos.";
       statusEl.classList.add("warn");
       statusEl.classList.remove("ok", "error");
     })
     .catch((error) => {
-      statusEl.textContent = `Sin conexión al backend. Ejecuta npm start y abre esta app desde http://localhost:3000. (${error.message})`;
+      statusEl.textContent = `No hay conexión con el servidor. Por favor, verifica que la aplicación esté ejecutándose.`;
       statusEl.classList.add("error");
       statusEl.classList.remove("ok", "warn");
     });
@@ -140,7 +141,7 @@ document
       if (data?.mfaSetup?.qrCodeDataUrl) {
         const img = document.createElement("img");
         img.src = data.mfaSetup.qrCodeDataUrl;
-        img.alt = "QR MFA";
+        img.alt = "Código QR de autenticación";
         img.className = "mfa-qr";
 
         document.getElementById("mfa-setup-result").appendChild(img);
