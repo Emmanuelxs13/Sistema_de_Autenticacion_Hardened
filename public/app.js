@@ -1,18 +1,71 @@
+function resolveApiError(response, data, url) {
+  if (data?.error) {
+    return data.error;
+  }
+
+  if (response.status === 404) {
+    return `No se encontró ${url}. Abre la app desde http://localhost:3000 ejecutando npm start.`;
+  }
+
+  if (response.status >= 500) {
+    return "Backend disponible pero con error interno. Revisa la terminal donde corre node src/server.js.";
+  }
+
+  return `Error HTTP ${response.status} en ${url}.`;
+}
+
 async function postJson(url, body) {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(body),
-  });
+  let response;
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(body),
+    });
+  } catch (error) {
+    throw new Error(
+      `No hay conexión con el backend. Inicia el servidor con npm start y abre http://localhost:3000. (${error.message})`,
+    );
+  }
 
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.error || "Error de servidor");
+    throw new Error(resolveApiError(response, data, url));
   }
 
   return data;
+}
+
+function checkBackendStatus() {
+  const statusEl = document.getElementById("api-status");
+
+  return fetch("/api/health", { credentials: "include" })
+    .then((response) =>
+      response
+        .json()
+        .catch(() => ({}))
+        .then((data) => ({ response, data })),
+    )
+    .then(({ response, data }) => {
+      if (response.ok && data?.ok) {
+        statusEl.textContent = "Backend conectado correctamente.";
+        statusEl.classList.add("ok");
+        statusEl.classList.remove("warn", "error");
+        return;
+      }
+
+      statusEl.textContent =
+        "Backend no responde correctamente. Revisa la terminal del servidor.";
+      statusEl.classList.add("warn");
+      statusEl.classList.remove("ok", "error");
+    })
+    .catch((error) => {
+      statusEl.textContent = `Sin conexión al backend. Ejecuta npm start y abre esta app desde http://localhost:3000. (${error.message})`;
+      statusEl.classList.add("error");
+      statusEl.classList.remove("ok", "warn");
+    });
 }
 
 function activateView(viewName) {
@@ -154,10 +207,10 @@ document
 document.getElementById("me-btn").addEventListener("click", async () => {
   try {
     const response = await fetch("/api/auth/me", { credentials: "include" });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(data.error || "No autorizado");
+      throw new Error(resolveApiError(response, data, "/api/auth/me"));
     }
 
     renderResult("session-result", data);
@@ -192,7 +245,7 @@ document.getElementById("audit-btn").addEventListener("click", async () => {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(data.error || "No autorizado para ver auditoría");
+      throw new Error(resolveApiError(response, data, "/api/auth/audit-log"));
     }
 
     renderResult("security-result", data);
@@ -200,3 +253,5 @@ document.getElementById("audit-btn").addEventListener("click", async () => {
     renderResult("security-result", error.message, true);
   }
 });
+
+void checkBackendStatus();

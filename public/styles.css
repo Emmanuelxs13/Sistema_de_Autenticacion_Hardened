@@ -96,6 +96,31 @@ h1 span {
   border-color: rgba(255, 255, 255, 0.15);
 }
 
+.api-status {
+  margin: 0.8rem 0 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(7, 15, 30, 0.7);
+  color: #d6e6ff;
+  font-size: 0.92rem;
+}
+
+.api-status.ok {
+  border-color: rgba(49, 198, 133, 0.65);
+  color: #b6ffd9;
+}
+
+.api-status.warn {
+  border-color: rgba(255, 190, 92, 0.65);
+  color: #ffe7bc;
+}
+
+.api-status.error {
+  border-color: rgba(255, 110, 126, 0.65);
+  color: #ffc6cd;
+}
+
 .view {
   display: none;
 }
