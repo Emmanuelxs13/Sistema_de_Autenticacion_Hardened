@@ -108,6 +108,29 @@ Ejecuta y abre:
 - `npm run dev`
 - `http://localhost:3000`
 
+## Automatización CI
+
+Se incluye pipeline en [`.github/workflows/ci.yml`](.github/workflows/ci.yml) con:
+
+- instalación (`npm ci`),
+- arranque del servidor,
+- validación de salud,
+- smoke test automático (`npm run smoke`).
+
+Esto evita publicar cambios que rompan endpoints críticos.
+
+## Docker para despliegue
+
+Construcción y ejecución local:
+
+- `docker build -t hardened-auth .`
+- `docker run --rm -p 3000:3000 --env-file .env hardened-auth`
+
+Archivos incluidos:
+
+- [`Dockerfile`](Dockerfile)
+- [`.dockerignore`](.dockerignore)
+
 ## Estructura principal
 
 ```text
@@ -168,6 +191,7 @@ Checklist mínimo para salida a producción:
 3. Configurar `TRUSTED_ORIGINS` con dominios reales del frontend.
 4. Definir `AUDIT_ADMIN_EMAILS` para restringir acceso a `/api/auth/audit-log`.
 5. Verificar `GET /api/health/ready` en el pipeline antes de publicar.
+6. Publicar solo con CI verde y smoke test exitoso.
 
 ## Estado actual
 

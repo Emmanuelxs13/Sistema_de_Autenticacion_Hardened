@@ -6,7 +6,9 @@
   "type": "commonjs",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "smoke": "node scripts/smoke-test.js",
+    "health:ready": "node -e \"fetch('http://localhost:3000/api/health/ready').then(r=>r.json()).then(j=>{if(!j.ok)process.exit(1);console.log('ready ok')}).catch(()=>process.exit(1))\""
   },
   "keywords": [
     "auth",

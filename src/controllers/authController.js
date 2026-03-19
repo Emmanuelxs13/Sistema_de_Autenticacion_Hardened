@@ -418,6 +418,13 @@ async function getAuditLog(req, res, next) {
       .toLowerCase()
       .trim();
 
+    if (env.nodeEnv === "production" && env.auditAdminEmails.length === 0) {
+      throw new HttpError(
+        503,
+        "Configuración incompleta: AUDIT_ADMIN_EMAILS es obligatorio en producción",
+      );
+    }
+
     if (
       env.auditAdminEmails.length > 0 &&
       !env.auditAdminEmails.includes(requesterEmail)
