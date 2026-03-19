@@ -23,7 +23,7 @@ async function postJson(url, body) {
       credentials: "include",
       body: JSON.stringify(body),
     });
-  } catch (error) {
+  } catch {
     throw new Error(
       `No hay conexión con el servidor. Por favor, verifica que la aplicación esté ejecutándose.`,
     );

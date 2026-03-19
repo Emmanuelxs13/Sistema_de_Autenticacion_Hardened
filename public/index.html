@@ -34,6 +34,14 @@
           <button
             class="nav-tab"
             type="button"
+            data-view="guia"
+            aria-pressed="false"
+          >
+            Guía
+          </button>
+          <button
+            class="nav-tab"
+            type="button"
             data-view="demo"
             aria-pressed="false"
           >
@@ -108,6 +116,98 @@
               <li>Obtener datos de perfil</li>
               <li>Cerrar sesión</li>
             </ul>
+          </section>
+        </div>
+      </section>
+
+      <section id="view-guia" class="view" aria-labelledby="guia-title" hidden>
+        <div class="grid info-grid">
+          <section class="card info-hero">
+            <h2 id="guia-title">Guía de uso de la aplicación</h2>
+            <p>
+              Este apartado te ayuda a entender qué hace el sistema, cómo aporta
+              valor y cómo utilizar correctamente cada sección para una
+              demostración clara frente a usuarios o clientes.
+            </p>
+          </section>
+
+          <section class="card">
+            <h2>¿Qué es esta aplicación?</h2>
+            <p>
+              Es una plataforma de autenticación segura que protege el acceso de
+              usuarios mediante contraseña robusta, verificación en dos pasos y
+              controles de sesión.
+            </p>
+            <ul>
+              <li>Protege cuentas y sesiones.</li>
+              <li>Reduce riesgo de accesos no autorizados.</li>
+              <li>Permite trazabilidad de eventos de seguridad.</li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <h2>¿Cómo sirve al negocio?</h2>
+            <p>
+              Mejora la confianza de usuarios finales, disminuye incidentes de
+              seguridad y aporta una base sólida para aplicaciones
+              empresariales.
+            </p>
+            <ul>
+              <li>Mejora la experiencia de acceso seguro.</li>
+              <li>Facilita cumplimiento y auditoría.</li>
+              <li>Disminuye costos por fraudes e incidentes.</li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <h2>Cómo usar cada apartado</h2>
+            <ul>
+              <li>
+                <strong>Inicio:</strong> vista ejecutiva del alcance, beneficios
+                y capacidades principales del sistema.
+              </li>
+              <li>
+                <strong>Guía:</strong> explicación operativa para comprender el
+                flujo y preparar presentaciones o capacitaciones.
+              </li>
+              <li>
+                <strong>Demo:</strong> ejecución práctica de todos los procesos
+                de autenticación con resultados en tiempo real.
+              </li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <h2>Cómo utilizar la Demo paso a paso</h2>
+            <ol class="guide-steps">
+              <li>
+                <strong>Crear cuenta:</strong> registra un usuario de prueba.
+              </li>
+              <li>
+                <strong>Configurar 2FA:</strong> genera el código QR para la app
+                de autenticación.
+              </li>
+              <li>
+                <strong>Activar 2FA:</strong> valida el código para habilitar
+                doble factor.
+              </li>
+              <li>
+                <strong>Iniciar sesión (Paso 1):</strong> valida correo y
+                contraseña.
+              </li>
+              <li>
+                <strong>Completar sesión (Paso 2):</strong> ingresa código de
+                verificación.
+              </li>
+              <li>
+                <strong>Gestión de sesión:</strong> consulta perfil y cierra
+                sesión.
+              </li>
+              <li>
+                <strong>Validación de seguridad:</strong> renueva sesión y
+                revisa historial de accesos.
+              </li>
+            </ol>
           </section>
         </div>
       </section>

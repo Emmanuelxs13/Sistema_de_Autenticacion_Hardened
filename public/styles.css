@@ -248,6 +248,17 @@ button:hover {
   color: #d9e8ff;
 }
 
+.guide-steps {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.guide-steps li {
+  color: var(--muted);
+}
+
 .actions button {
   margin-top: 0;
 }
