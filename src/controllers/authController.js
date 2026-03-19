@@ -3,7 +3,12 @@ const argon2 = require("argon2");
 const env = require("../config/env");
 const { HttpError } = require("../utils/errors");
 const { isValidEmail, isStrongPassword } = require("../utils/validators");
-const { findByEmail, findById, insertUser, updateUser } = require("../services/userStore");
+const {
+  findByEmail,
+  findById,
+  insertUser,
+  updateUser,
+} = require("../services/userStore");
 const {
   signAccessToken,
   signTempToken,
@@ -11,9 +16,20 @@ const {
   signRefreshToken,
   verifyRefreshToken,
 } = require("../services/tokenService");
-const { generateMfaSecret, verifyTotpToken } = require("../services/mfaService");
-const { logAuthEvent, getAuditLog: fetchAuditLog, getSecurityReport } = require("../services/auditService");
-const { recordFailedAttempt, clearFailedAttempts, isAccountLocked } = require("../services/rateLimitService");
+const {
+  generateMfaSecret,
+  verifyTotpToken,
+} = require("../services/mfaService");
+const {
+  logAuthEvent,
+  getAuditLog: fetchAuditLog,
+  getSecurityReport,
+} = require("../services/auditService");
+const {
+  recordFailedAttempt,
+  clearFailedAttempts,
+  isAccountLocked,
+} = require("../services/rateLimitService");
 
 function setAuthCookie(res, token) {
   res.cookie(env.authCookieName, token, {
@@ -50,7 +66,9 @@ function clearRefreshCookie(res) {
 }
 
 async function register(req, res, next) {
-  const email = String(req.body.email || "").toLowerCase().trim();
+  const email = String(req.body.email || "")
+    .toLowerCase()
+    .trim();
   const ip = req.ip || "unknown";
 
   try {
@@ -93,7 +111,9 @@ async function register(req, res, next) {
     };
 
     await insertUser(user);
-    await logAuthEvent("register", email, ip, true, { userAgent: req.get("user-agent") });
+    await logAuthEvent("register", email, ip, true, {
+      userAgent: req.get("user-agent"),
+    });
 
     return res.status(201).json({
       message: "Usuario registrado de forma segura con Argon2.",
@@ -113,7 +133,9 @@ async function register(req, res, next) {
 }
 
 async function mfaSetup(req, res, next) {
-  const email = String(req.body.email || "").toLowerCase().trim();
+  const email = String(req.body.email || "")
+    .toLowerCase()
+    .trim();
   const ip = req.ip || "unknown";
 
   try {
@@ -133,10 +155,13 @@ async function mfaSetup(req, res, next) {
       updatedAt: new Date().toISOString(),
     }));
 
-    await logAuthEvent("mfa_setup", email, ip, true, { userAgent: req.get("user-agent") });
+    await logAuthEvent("mfa_setup", email, ip, true, {
+      userAgent: req.get("user-agent"),
+    });
 
     return res.json({
-      message: "QR MFA generado. Escanéalo y luego verifica con un código TOTP.",
+      message:
+        "QR MFA generado. Escanéalo y luego verifica con un código TOTP.",
       mfaSetup: {
         qrCodeDataUrl: mfaSecret.qrCodeDataUrl,
         manualSecret: mfaSecret.base32,
@@ -152,7 +177,9 @@ async function mfaSetup(req, res, next) {
 }
 
 async function mfaVerifySetup(req, res, next) {
-  const email = String(req.body.email || "").toLowerCase().trim();
+  const email = String(req.body.email || "")
+    .toLowerCase()
+    .trim();
   const ip = req.ip || "unknown";
 
   try {
@@ -182,7 +209,9 @@ async function mfaVerifySetup(req, res, next) {
       updatedAt: new Date().toISOString(),
     }));
 
-    await logAuthEvent("mfa_verify_setup", email, ip, true, { userAgent: req.get("user-agent") });
+    await logAuthEvent("mfa_verify_setup", email, ip, true, {
+      userAgent: req.get("user-agent"),
+    });
     return res.json({ message: "MFA activado correctamente" });
   } catch (err) {
     await logAuthEvent("mfa_verify_setup", email || "unknown", ip, false, {
@@ -194,7 +223,9 @@ async function mfaVerifySetup(req, res, next) {
 }
 
 async function login(req, res, next) {
-  const email = String(req.body.email || "").toLowerCase().trim();
+  const email = String(req.body.email || "")
+    .toLowerCase()
+    .trim();
   const ip = req.ip || "unknown";
 
   try {
@@ -232,7 +263,9 @@ async function login(req, res, next) {
       requires2fa: true,
     });
 
-    await logAuthEvent("login_attempt", email, ip, true, { userAgent: req.get("user-agent") });
+    await logAuthEvent("login_attempt", email, ip, true, {
+      userAgent: req.get("user-agent"),
+    });
 
     return res.json({
       message: "Credenciales válidas. Ingresa código MFA para completar login.",
@@ -289,7 +322,9 @@ async function login2fa(req, res, next) {
     setAuthCookie(res, accessToken);
     setRefreshCookie(res, refreshToken);
 
-    await logAuthEvent("login_2fa", user.email, ip, true, { userAgent: req.get("user-agent") });
+    await logAuthEvent("login_2fa", user.email, ip, true, {
+      userAgent: req.get("user-agent"),
+    });
 
     return res.json({
       message: "Login MFA exitoso. Cookie segura emitida.",
@@ -338,7 +373,9 @@ async function refreshToken(req, res, next) {
     setAuthCookie(res, newAccessToken);
     setRefreshCookie(res, newRefreshToken);
 
-    await logAuthEvent("refresh_token", user.email, ip, true, { userAgent: req.get("user-agent") });
+    await logAuthEvent("refresh_token", user.email, ip, true, {
+      userAgent: req.get("user-agent"),
+    });
 
     return res.json({
       message: "Token refrescado exitosamente",
@@ -399,7 +436,9 @@ async function logout(req, res, next) {
 
     const email = req.auth?.email || "unknown";
     const ip = req.ip || "unknown";
-    await logAuthEvent("logout", email, ip, true, { userAgent: req.get("user-agent") });
+    await logAuthEvent("logout", email, ip, true, {
+      userAgent: req.get("user-agent"),
+    });
 
     return res.json({ message: "Sesión cerrada" });
   } catch (err) {

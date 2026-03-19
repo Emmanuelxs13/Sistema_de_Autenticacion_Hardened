@@ -43,7 +43,11 @@ app.get("/api/health", (_req, res) => {
 
 app.post("/api/auth/register", authController.register);
 app.post("/api/auth/mfa/setup", authController.mfaSetup);
-app.post("/api/auth/mfa/verify-setup", loginLimiter, authController.mfaVerifySetup);
+app.post(
+  "/api/auth/mfa/verify-setup",
+  loginLimiter,
+  authController.mfaVerifySetup,
+);
 app.post("/api/auth/login", loginLimiter, authController.login);
 app.post("/api/auth/login/2fa", loginLimiter, authController.login2fa);
 app.post("/api/auth/refresh", authController.refreshToken);
