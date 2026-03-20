@@ -218,9 +218,17 @@
             <h2 id="demo-title">1) Crear cuenta</h2>
             <p>Registra una nueva cuenta de usuario con contraseña segura.</p>
             <form id="register-form">
-              <label>Email <input type="email" name="email" required /></label>
               <label
-                >Password <input type="password" name="password" required
+                >Email
+                <input type="email" name="email" autocomplete="email" required
+              /></label>
+              <label
+                >Password
+                <input
+                  type="password"
+                  name="password"
+                  autocomplete="new-password"
+                  required
               /></label>
               <button type="submit">Crear cuenta</button>
             </form>
@@ -231,7 +239,10 @@
             <h2>2) Configurar 2FA</h2>
             <p>Genera código QR para vincular autenticador de dos factores.</p>
             <form id="mfa-setup-form">
-              <label>Email <input type="email" name="email" required /></label>
+              <label
+                >Email
+                <input type="email" name="email" autocomplete="email" required
+              /></label>
               <button type="submit">Generar QR 2FA</button>
             </form>
             <div id="mfa-setup-result" class="result"></div>
@@ -244,10 +255,20 @@
               dos factores.
             </p>
             <form id="mfa-verify-form">
-              <label>Email <input type="email" name="email" required /></label>
+              <label
+                >Email
+                <input type="email" name="email" autocomplete="email" required
+              /></label>
               <label
                 >Código de verificación
-                <input type="text" name="token" maxlength="6" required
+                <input
+                  type="text"
+                  name="token"
+                  maxlength="6"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  pattern="[0-9]{6}"
+                  required
               /></label>
               <button type="submit">Activar 2FA</button>
             </form>
@@ -258,9 +279,21 @@
             <h2>4) Iniciar sesión (Paso 1)</h2>
             <p>Inicia sesión con correo y contraseña.</p>
             <form id="login-step1-form">
-              <label>Email <input type="email" name="email" required /></label>
               <label
-                >Password <input type="password" name="password" required
+                >Email
+                <input
+                  type="email"
+                  name="email"
+                  autocomplete="username"
+                  required
+              /></label>
+              <label
+                >Password
+                <input
+                  type="password"
+                  name="password"
+                  autocomplete="current-password"
+                  required
               /></label>
               <button type="submit">Iniciar sesión</button>
             </form>
@@ -273,11 +306,25 @@
             <form id="login-step2-form">
               <label
                 >Token temporal
-                <textarea name="tempToken" rows="3" required></textarea>
+                <textarea
+                  name="tempToken"
+                  rows="3"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  required
+                ></textarea>
               </label>
               <label
                 >Código de verificación
-                <input type="text" name="mfaCode" maxlength="6" required
+                <input
+                  type="text"
+                  name="mfaCode"
+                  maxlength="6"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  pattern="[0-9]{6}"
+                  required
               /></label>
               <button type="submit">Completar sesión</button>
             </form>
